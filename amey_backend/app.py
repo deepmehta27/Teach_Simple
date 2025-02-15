@@ -6,6 +6,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import spacy
 import string
+import json
 
 load_dotenv()
 
@@ -53,7 +54,7 @@ def transcribe():
         print("Transcription error:", e)
         return jsonify({"error": str(e)}), 500
     
-
+final= json.loads(final.get_data(as_text=True))
 final[0]['transcription']=Name_Age
 final[1]['transcription']=Ed_Background
 final[2]['transcription']=Grade
