@@ -1,35 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import Content from './component/content';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+    <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
+      {/* Header */}
+      <header className="bg-gray-800 text-white p-4">
+        <h1 className="text-xl font-bold">Teach Simple App</h1>
+      </header>
+
+      {/* Main content area */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4">
+        <Content />
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-center border-t border-gray-700 p-4">
+        <p className="text-sm text-gray-400">
+          © {new Date().getFullYear()} Teach Simple App. All rights reserved.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
