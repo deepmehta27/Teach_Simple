@@ -1,0 +1,11 @@
+openai
+streamlit
+fastapi
+uvicorn
+speechrecognition
+pydub
+livekit-server
+websockets
+pyttsx3
+celery
+redis
