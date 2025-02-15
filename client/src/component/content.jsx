@@ -44,7 +44,7 @@ const Content = () => {
     const formData = new FormData();
     formData.append('file', blob, 'recording.wav');
     try {
-      const response = await axios.post('http://localhost:8000/api/transcribe', formData, {
+      const response = await axios.post('http://127.0.0.1:5000/api/transcribe', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       const transcription = response.data.transcription;
