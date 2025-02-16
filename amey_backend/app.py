@@ -117,7 +117,11 @@ understanding_levels={
    
 }
 
-
+def user_progress:{
+    'responses'=[],
+    'scores'=[],
+    'user_depth'=[]
+}
 
 def key_concepts(transcription):
     words=f'extract the key concepts from;\n\n{transcription}\n\nKey concepts:'
@@ -140,18 +144,76 @@ def generate_question(concept, depth_level):
     )
     return response["choices"][0]["message"]["content"]
 
+def answer_eval(user_answer, main_concept):
+    prompt=f'''Evaluate the succinctness and clarity of the users answer, while also evaluating the accuracy of the answer in terms of the subject matter;
+    concept:{main_concept}
+    answer:{user_answer}
+    Give a score based on Blooms Taxonomy (with a maximum level of 6) and explain your reasoning:
+    Response Format:{{'score': X, 'reason':'...'}}'''
+    
+    feedback = openai.ChatCompletion.create(
+        model="gpt-4-turbo",
+        messages=[{"role": "system", "content": "You are an AI that responds to subject explanations with feedback and additional questions."},
+        {"role": "user", "content": prompt}]
+    import json
+    try:
+        feedback = json.loads(response["choices"][0]["message"]["content"])
+        return feedback["score"], feedback["reason"]
+    except:
+        return 5, "Could not analyze response."
+        
+  
+def question_adjustment(current_depth, score):
+    avg=sum(previous_scores[-3:])/len(previous_scores) if previous_scores else scores
+    if avg <= 4:
+        return min(current_depth + 1, 6)
+    if previous_scores[-1] = 4:
+        return (current_depth)
+    if avg => 4:
+        return ('you have a firm grasp on this concept!')
+
 
 def full():
-    explanation=input(transcription)
-    concepts=key_concepts(explanation)
-    print(f'extracted key concepts:{concepts}')
+   explanation = input("Enter your explanation: ")
+    concepts = key_concepts(explanation)  # Extract concepts
     if not concepts:
-        print('could not extract concepts from prompt')
-        
-    main_concept=concepts
-    
-    question=generate_question(main_concept, depth_level)
-    
+        print("Could not extract concepts from prompt.")
+        return
+
+    main_concept = concepts[0]  # Use the first extracted concept
+    depth_level = 3  # Start at medium difficulty
+
+    while True:
+        # Generate and ask a question
+        question = generate_question(main_concept, depth_level)
+        print(f"AI: {question}")
+
+        # Get user response
+        user_answer = input("Your answer: ")
+        if user_answer.lower() in ["exit", "quit"]:
+            print("Session ended.")
+            break
+
+        # Evaluate the answer
+        score, reason = evaluate_answer(user_answer, main_concept)
+        print(f"AI Feedback: {reason} (Score: {score}/10)")
+
+        # Store user progress
+        user_progress["responses"].append(user_answer)
+        user_progress["scores"].append(score)
+        user_progress["depth_levels"].append(depth_level)
+
+        # Adjust depth level based on score history
+        depth_level = adjust_depth(depth_level, score, user_progress["scores"])
+
+        print(f"Next question will be at depth level: {depth_level}")
+
+        # Show progress summary after every 3 questions
+        if len(user_progress["scores"]) % 3 == 0:
+            avg_score = sum(user_progress["scores"]) / len(user_progress["scores"])
+            print(f"\n📊 Progress Report: Average Score = {avg_score:.2f}/10")
+            print(f"🧐 Last 3 Scores: {user_progress['scores'][-3:]}")
+            print(f"📈 Depth Level History: {user_progress['depth_levels']}\n")
 
 
 if __name__ == "__main__":
