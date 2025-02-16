@@ -75,14 +75,16 @@ def key_concepts(subject):
 
 nlp = spacy.load("en_core_web_sm") # load pretrained model 
 
-def proper_noun_extraction(Name_Age, Background):
-    prop_noun = []
+def proper_noun_extraction(x):
+    prop_nouns = {}
     doc = nlp(string.capwords(x))
+    proper_nouns=[]
     for tok in doc:
         if tok.pos_ == 'PROPN':
-            prop_noun.append(str(tok))
-    if len(prop_noun) !=0:
-        return (' '.join(prop_noun), x)
+        prop_noun.append(str(tok))
+    if proper_nouns:
+        prop_nouns[x]=proper_nouns
+        return prop_nouns
     else:
         return ('no proper noun found', None)
 
@@ -106,14 +108,16 @@ def provide_resources(keywords):
 
 
 understanding_levels={
-    one: 'a basic ability to understand the words and structure of the answer',
-    two:'an understanding of the vocabulary the prompt contains',
-    three:'an understanding of the subject matter',
-    four:'an ability to analyze the subject matter',
-    five:'an ability to ask follow-up questions about the subject matter',
-    six:'a mastery of the concept the prompt covers'
+    'one': 'a basic ability to understand the words and structure of the answer',
+    'two':'an understanding of the vocabulary the prompt contains',
+    'three':'an understanding of the subject matter',
+    'four':'an ability to analyze the subject matter',
+    'five':'an ability to ask follow-up questions about the subject matter',
+    'six':'a mastery of the concept the prompt covers'
    
 }
+
+
 
 def key_concepts(transcription):
     words=f'extract the key concepts from;\n\n{transcription}\n\nKey concepts:'
@@ -127,7 +131,7 @@ def key_concepts(transcription):
 def generate_question(concept, depth_level):
     depth_instruction = DEPTH_LEVELS.get(depth_level, "Ask a general question about this concept.")
     
-    prompt = f"Generate a question about the concept '{concept}' based on this depth: {depth_instruction}"
+    prompt = f"Generate a question that connects these concepts: '{concept}' based on this depth: {depth_instruction}"
     
     response = openai.ChatCompletion.create(
         model="gpt-4-turbo",
@@ -144,10 +148,10 @@ def full():
     if not concepts:
         print('could not extract concepts from prompt')
         
-    main_concept=concepts[0]
-    depth_level=one
+    main_concept=concepts
     
     question=generate_question(main_concept, depth_level)
+    
 
 
 if __name__ == "__main__":
